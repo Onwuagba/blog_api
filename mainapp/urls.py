@@ -1,7 +1,7 @@
 from django.urls import path
-from mainapp.views import HomeView
+from mainapp.views import TopNewsView
 
 app_name = 'mainapp'
 urlpatterns = [
-    path("register", HomeView.as_view()),
+    path("topnews/", TopNewsView.as_view()),
 ]
