@@ -1,5 +1,7 @@
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import timedelta
+from celery.schedules import crontab
 import os
 
 load_dotenv()
@@ -14,7 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', False)
 
 ALLOWED_HOSTS = []
 
@@ -30,6 +32,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api',
     'mainapp',
+    'django_celery_beat',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -77,6 +81,7 @@ DATABASES = {
     },
 }
 
+AUTH_USER_MODEL = 'api.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -96,6 +101,17 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# CELERY 
+CELERY_BROKER_URL = 'redis://' + os.getenv('REDIS_HOST') + ':' + os.getenv('REDIS_PORT')
+CELERY_RESULT_BACKEND = 'redis://' + os.getenv('REDIS_HOST') + ':' + os.getenv('REDIS_PORT')
+CELERY_TIMEZONE = 'Africa/Lagos'
+CELERY_BEAT_SCHEDULE = {
+ 'hackerank-news': {
+       'task': 'mainapp.tasks.get_news',
+       'schedule': crontab(minute='*/5'),
+    #    'schedule': 60,
+    }       
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
