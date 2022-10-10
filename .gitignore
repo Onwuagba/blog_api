@@ -48,6 +48,8 @@ coverage.xml
 
 # celery 
 celerybeat-schedule.* 
+worker.file
+beat.file
 
 # Environments 
 .env 

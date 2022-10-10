@@ -20,7 +20,7 @@ class Post(TimeStamp):
     title = models.CharField(max_length=150, unique=True, null=False, blank=False, db_index=True)
     type = models.CharField(max_length=12, null=False, blank=False)
     text = models.TextField(max_length=12, null=True, blank=True)
-    url = models.URLField(max_length=150, unique=True, null=True, blank=True) # some response don't come with URL
+    url = models.URLField(max_length=300, unique=True, null=True, blank=True) # some response don't come with URL
     score = models.IntegerField(null=False, blank=False, default='0')
     deleted = models.BooleanField(default=False)
     time = models.DateTimeField()
@@ -46,6 +46,7 @@ class Comment(TimeStamp):
     text = models.TextField(null=False, blank=False)
     type = models.CharField(max_length=12, null=False, blank=False)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comment_post')
+    nested_comment=models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
     time = models.DateTimeField()
     author = models.CharField(max_length=150, null=False, blank=False, db_index=True)
 
