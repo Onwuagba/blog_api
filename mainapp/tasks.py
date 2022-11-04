@@ -14,19 +14,15 @@ headers = {
 
 @shared_task()
 def get_news():
-    print('CELERY: get_news')
     """
     Get latest 100 from Hackerank if no news in Post DB else pull latest news
     """
     if Post.objects.exists():
-        print('something in post')
         limit = None
         res = get_hackernews(limit)
     else:
-        print('nothing in posts')
         limit = 100
         res = get_hackernews(limit)
-    print("response in main", res)
     return res
 
 
@@ -34,14 +30,13 @@ def get_hackernews(limit):
     """
     Return list of post_ids from Hackernew
     """
-    print ("celery entered top100")
     path = 'newstories.json'    
     url = base_url + path
     try:
         res = requests.get(url, headers=headers)
         if res.status_code == 200:
             if limit:
-                all_posts = res.json()[:10]
+                all_posts = res.json()[:limit]
             else:
                 all_posts = res.json()
             news_source = "HR"
@@ -57,7 +52,6 @@ def get_latest_time():
     """
     Get the latest time from db to prevent entering old news
     """
-    print ("celery entered latest time")
     utc=pytz.UTC
     try:
         latest_local_date = Post.objects.latest('time')
@@ -74,10 +68,8 @@ def posts_in_detail(all_posts, source):
     save posts to db
     ** receives list of post_ids as all_posts
     """
-    print ("celery entered posts_in_detail")
     posts_list = []
     for post_id in all_posts:
-        print("all posts", all_posts)
         path = f'item/{post_id}.json'
         url = base_url + path
         try:
@@ -108,7 +100,6 @@ def posts_in_detail(all_posts, source):
             print("Exception in posts_in_detail",str(e))
 
     if posts_list:
-        print("posts for insert:", posts_list)
         try:
             Post.objects.bulk_create(posts_list)
         except Exception as e:
@@ -120,8 +111,8 @@ def comment(kids, post_obj, nested_comment):
     """
     return all comments in posts
     """
-    print ("celery entered get_kids")
     kid_list = []
+    error=""
     for kid_id in kids:
         path = f'item/{kid_id}.json'
         url = base_url + path
@@ -139,19 +130,16 @@ def comment(kids, post_obj, nested_comment):
                                 time=res_time,
                                 author=res_json.get('by')
                             )
-                kid_list.append(comment_obj)
+                comment_obj.save()
+
 
                 # recursive - for comments within comments
                 if 'kids' in res_json:
                     comment(res_json.get('kids'), post_obj, comment_obj)
         except Exception as e:
-            print("Exception in comment method",str(e))
-    
-    
-    if kid_list:
-        print("posts for insert in comment:", kid_list)
-        try:
-            Comment.objects.bulk_create(kid_list)
-        except Exception as e:
-            print("Error saving to db in comment method",str(e))
-    return kid_list
+            error = str(e)
+
+    if error:
+        return error
+    else:
+        return "comment saved successfully"

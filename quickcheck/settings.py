@@ -30,10 +30,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'api',
-    'mainapp',
     'django_celery_beat',
     'django_celery_results',
+    'rest_framework',
+    'django_filters',
+    'rest_framework_swagger',
+    'drf_yasg',
+    'rest_framework_simplejwt',
+    'api',
+    'mainapp',
 ]
 
 MIDDLEWARE = [
@@ -51,7 +56,7 @@ ROOT_URLCONF = 'quickcheck.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -66,6 +71,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'quickcheck.wsgi.application'
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '300/day',
+        'user': '500/day',
+    },
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -109,7 +131,6 @@ CELERY_BEAT_SCHEDULE = {
  'hackerank-news': {
        'task': 'mainapp.tasks.get_news',
        'schedule': crontab(minute='*/5'),
-    #    'schedule': 60,
     }       
 }
 

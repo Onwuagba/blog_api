@@ -38,13 +38,9 @@ class User(AbstractUser, TimeStamp):
     email  = None
     username = models.CharField(
         db_index=True, max_length=255, unique=True, verbose_name='username')
-    first_name = models.CharField(
-        max_length=150, null=False, blank=False, verbose_name='first name')
-    last_name = models.CharField(
-        max_length=150, null=False, blank=False, verbose_name='last name')
     password = models.CharField(
         max_length=128, null=False, blank=False, verbose_name='password')
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'

@@ -1,0 +1,81 @@
+{% extends 'news/base.html' %}
+
+{% block content %}
+<!-- {% load static %} -->
+
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-warning text-center" role="alert">
+    <b>{{ message }}</b>
+</div>
+{% endfor %}
+{% endif %}
+
+
+<div class="wrapper row3">
+    <main class="hoc container clear">
+        <form action="" method="get" class="form-inline">
+            <input name="q" type="text" placeholder="Search...">
+            <input type="submit" />
+          </form>
+        <div id="" class="fl_right ">
+            <form method="get" class="form-inline">
+                {{ filter.form.as_p }}
+                <input type="submit" />
+            </form>
+        </div>
+        <hr class="btmspace-80">
+        <ul class="nospace group overview">
+            {% for news in object_list %}
+            <li class="one_third">
+                <article>
+                    <h6 class="heading">{{ news.title }}</h6>
+                    <small>{{ news.time }}</small>
+                    <ul class="nospace meta">
+                        <li><i class="fa fa-user"></i> <a href="#">{{ news.author }}</a></li>
+                        <li><i class="fa fa-tag"></i> <a href="#">{{ news.type }}</a></li>
+                        <li><i class="fa fa-comment"></i> <a href="#">{{ news.comment_count }}</a></li>
+                    </ul>
+                    <p>{{ news.text | safe}}&hellip;</p>
+                    <footer class="nospace"><a class="btn" href="{% url 'mainapp:news_detail' news.post_id %}">Full Story &raquo;</a></footer>
+                </article>
+            </li>
+            {% empty %}
+            <li>
+                <p class="text-center"><b> No post to display at the moment. Please check back later</b></p>
+            </li>
+            {% endfor %}
+        </ul>
+        <!-- / main body -->
+        <div class="clear"></div>
+    </main>
+
+    <div class="bgded overlay light">
+        <div class="wrapper row1">
+            <header id="header" class="hoc clear">
+                <div id="logo" class="fl_left">
+                    <h1><a href=""></a></h1>
+                </div>
+                <nav id="mainav" class="fl_right">
+                    <ul class="clear" style="margin:10px">
+                        {% if page_obj.has_previous %}
+                        <a href="?page=1">&laquo; first</a>
+                        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                        {% endif %}
+
+                        <span class="current">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                        </span>
+
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}">next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </header>
+        </div>
+    </div>
+
+    {% endblock %}
